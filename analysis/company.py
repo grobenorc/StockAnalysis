@@ -20,6 +20,8 @@ class Company:
     def get_recommendations(self):
         return self.stock.recommendations
     
+    #%% Below are specific plotting methods specific for visualisation.
+    
     def plot_rolling_PE(self):
         # Get the quarterly Basic EPS and convert it to yearly EPS
         BasicEPS_Q = self.stock.quarterly_income_stmt.loc['Basic EPS']
@@ -75,3 +77,37 @@ class Company:
         # Improve layout and display the plot
         fig.tight_layout()
         plt.show()
+        
+    def plot_revenue_grossprofit(self, return_data=False):
+        financials = self.get_financials()
+        GrossProfit = (financials.loc['Gross Profit'] / 10**6)[::-1].astype(int)
+        TotRevenue = (financials.loc['Total Revenue'] / 10**6)[::-1].astype(int)
+        CostOfRevenue = TotRevenue - GrossProfit
+        GrossMargin = (GrossProfit / TotRevenue).astype(float)
+        
+        import matplotlib.ticker as mtick
+        fig, ax = plt.subplots(figsize=(10, 6), dpi=250)
+        # Plot a stacked bar chart not using the pd.DataFrame.plot() method
+        ax.bar(GrossProfit.index.year, GrossProfit, label='Gross Profit')
+        ax.bar(TotRevenue.index.year, CostOfRevenue, bottom=GrossProfit, label='Total Revenue')
+        ax.set_ylabel(f"Millions of {self.info['currency']}")
+        # Format the y-axis as millions
+        ax.yaxis.set_major_formatter(mtick.StrMethodFormatter('${x:,.0f}M'))
+        ax.set_xlabel('Year')
+        # Format the x-axis as years as well as only display integer values
+        ax.set_xticks(GrossProfit.index.year)
+        ax.xaxis.set_major_formatter(mtick.StrMethodFormatter('{x:.0f}'))
+        ax.legend()
+        ax2 = ax.twinx()
+        ax2.plot(GrossMargin.index.year, GrossMargin, linestyle='dashed', marker='o', color='red')
+        ax2.set_ylabel('Gross Margin')
+        ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+        ax2.set_ylim(0, 1)
+        # Annotation for the Gross Margin values
+        for i, txt in enumerate(GrossMargin):
+            ax2.annotate(f'{txt:.1%}', (GrossMargin.index.year[i], GrossMargin[i]), textcoords="offset points", xytext=(0,5), ha='center')
+        
+        plt.show()
+        
+        if return_data:
+            return GrossProfit, TotRevenue, GrossMargin
