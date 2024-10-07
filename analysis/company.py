@@ -90,7 +90,7 @@ class Company:
         # Plot a stacked bar chart not using the pd.DataFrame.plot() method
         ax.bar(GrossProfit.index.year, GrossProfit, label='Gross Profit')
         ax.bar(TotRevenue.index.year, CostOfRevenue, bottom=GrossProfit, label='Total Revenue')
-        ax.set_ylabel(f"Millions of {self.info['currency']}")
+        ax.set_ylabel(f"Millions of {self.stock.info['currency']}")
         # Format the y-axis as millions
         ax.yaxis.set_major_formatter(mtick.StrMethodFormatter('${x:,.0f}M'))
         ax.set_xlabel('Year')
