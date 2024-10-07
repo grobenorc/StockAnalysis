@@ -1,4 +1,4 @@
 # Ignore all Jupyter notebook created. I only want to store the Python files that creates it.
 *.ipynb
-analysis_notebooks/
-reports/
+analysis_notebooks/**
+reports/**
